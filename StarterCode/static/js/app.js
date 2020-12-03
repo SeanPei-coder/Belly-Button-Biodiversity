@@ -98,27 +98,26 @@ function buildGauge() {
           Plotly.newPlot('gauge', data, layout);
     })
 }
+d3.json("samples.json").then((data) => {
+    console.log(data);
+    var idArray = data.samples.map(x=>x.id);
+    console.log(idArray);
 
+    var selectBody = d3.select("#selDataset");
+    
+    for(i=0;i<idArray.length;i++) {
+        selectBody.append("option").text(idArray[i]);
+    }
+})
 
 function init(){
-    d3.json("samples.json").then((data) => {
-        console.log(data);
-        var idArray = data.samples.map(x=>x.id);
-        console.log(idArray);
-
-        var selectBody = d3.select("#selDataset");
-        
-        for(i=0;i<idArray.length;i++) {
-            selectBody.append("option").text(idArray[i]);
-        };
-
-        buildBar();
-        buildBubble();
-        buildInfo();
-        buildGauge();
-
-    })
+    buildBar();
+    buildBubble();
+    buildInfo();
+    buildGauge();
 }
+
+
 
 d3.selectAll("#selDataset").on("change",optionChanged);
 
@@ -187,7 +186,7 @@ function updateBubble(newdata) {
 }
 
 function updateInfo(newdata) {
-    
+    deletRows();
     d3.json("samples.json").then((data) => {
         var id = data.metadata[newdata].id;
         var eth = data.metadata[newdata].ethnicity;
