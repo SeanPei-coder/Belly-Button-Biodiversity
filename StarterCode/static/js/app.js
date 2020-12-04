@@ -58,6 +58,7 @@ function buildInfo() {
 
         
 function buildTable(id,eth,gender,age,location,bbtype,wfreq) {
+    deletRows();
     var table = d3.select("#sample-metadata").append("table");
     var tbody = table.append("tbody");
     var trow;
@@ -81,21 +82,82 @@ function buildTable(id,eth,gender,age,location,bbtype,wfreq) {
 }
 
 function buildGauge() {
+    
+    
+// Trig to calc meter point
+    function gaugePointer(value){
+	
+	    var degrees = 180 - value,
+	     radius = .5;
+        var radians = degrees * Math.PI / 180;
+        var x = radius * Math.cos(radians);
+        var y = radius * Math.sin(radians);
+
+
+// Path: may have to change to create a better triangle
+        var mainPath = 'M -.0 -0.035 L .0 0.035 L ',
+            pathX = String(x),
+            space = ' ',
+            pathY = String(y),
+            pathEnd = ' Z';
+        var path = mainPath.concat(pathX,space,pathY,pathEnd);
+            
+            return path;
+
+        }
     d3.json("samples.json").then((data) => {
+        var level = data.metadata[0].wfreq*20;
         var data = [
-            {
-              domain: { x: [0, 1], y: [0, 1] },
-              value: data.metadata[0].wfreq,
-              title: { text: "Belly Button Washing Frequency" },
-              type: "indicator",
-              mode: "gauge",
-              delta: { reference: 400 },
-              gauge: { axis: { range: [0, 9] }}
-            }
-          ];
-          
-          var layout = { width: 600, height: 400 };
-          Plotly.newPlot('gauge', data, layout);
+                    { 
+                    type: 'scatter',
+                    x: [0], y:[0],
+                    marker: {size: 18, color:'850000'},
+                    showlegend: false,
+                    name: 'Scrub per Week',
+                    text: level,
+                    hoverinfo: 'name'
+                    },
+                    {values: [50/9,50/9,50/9,50/9,50/9,50/9,50/9,50/9,50/9,50],
+                    rotation: 90,
+                    text: ['8-9', '7-8', '6-7', '5-6',
+                            '4-5', '3-4', '2-3','1-2','0-1',''],
+                    textinfo: 'text',
+                    textposition:'inside',	  
+                    marker: {colors:['rgba(22,212,141, .5)', 'rgba(44,215,117, .5)',
+                                        'rgba(68,218,101, .5)', 'rgba(92,221,94, .5)',
+                                        'rgba(136,224,116, .5)', 'rgba(175,227,142, .5)',
+                                        'rgba(205,230,168, .5)','rgba(225,233,194, .5)','rgba(237, 237, 222, .5)',
+                                        'rgba(255, 255, 255, 0)']},
+                    labels: ['8-9', '7-8', '6-7', '5-6',
+                    '4-5', '3-4', '2-3','1-2','0-1',''],
+                    hoverinfo: 'label',
+                    hole: .5,
+                    type: 'pie',
+                    showlegend: false
+                    }
+                    ];
+
+        var layout = {
+                        shapes:[{
+                        type: 'path',
+                        path: gaugePointer(level),
+                        fillcolor: '850000',
+                        line: {
+                            color: '850000'
+                              }
+                         }],
+                        title: '<b>Belly Button Washing Frequency</b> <br> Scrubs per Week',
+                        autosize:true,
+        //height: 1000,
+        //width: 1000,
+                        xaxis: {zeroline:false, showticklabels:false,
+                                    showgrid: false, range: [-1, 1]},
+                        yaxis: {zeroline:false, showticklabels:false,
+                                showgrid: false, range: [-1, 1]}
+                    };
+
+
+        Plotly.newPlot('gauge', data, layout);
     })
 }
 d3.json("samples.json").then((data) => {
@@ -138,6 +200,7 @@ function optionChanged() {
         updateBar(id);
         updateBubble(id);
         updateInfo(id);
+        updateGauge(id);
     });
 }
 
@@ -186,7 +249,7 @@ function updateBubble(newdata) {
 }
 
 function updateInfo(newdata) {
-    deletRows();
+    
     d3.json("samples.json").then((data) => {
         var id = data.metadata[newdata].id;
         var eth = data.metadata[newdata].ethnicity;
@@ -202,10 +265,88 @@ function updateInfo(newdata) {
 }
 
 function deletRows() {
-    var table = document.getElementsByTagName("tbody");
-    while(table.rows.length > 0) {
-        table.deleteRow(0);
-      }
+    var table = d3.select("#sample-metadata");
+    table.html("");
 }
+
+function updateGauge(newdata) {
+    // Trig to calc meter point
+    function gaugePointer(value){
+	
+	    var degrees = 180 - value,
+	     radius = .5;
+        var radians = degrees * Math.PI / 180;
+        var x = radius * Math.cos(radians);
+        var y = radius * Math.sin(radians);
+
+
+// Path: may have to change to create a better triangle
+        var mainPath = 'M -.0 -0.035 L .0 0.035 L ',
+            pathX = String(x),
+            space = ' ',
+            pathY = String(y),
+            pathEnd = ' Z';
+        var path = mainPath.concat(pathX,space,pathY,pathEnd);
+            
+            return path;
+
+        }
+    d3.json("samples.json").then((data) => {
+        var level = data.metadata[newdata].wfreq*20;
+        var data = [
+                    { 
+                    type: 'scatter',
+                    x: [0], y:[0],
+                    marker: {size: 18, color:'850000'},
+                    showlegend: false,
+                    name: 'Scrub per Week',
+                    text: level,
+                    hoverinfo: 'name'
+                    },
+                    {values: [50/9,50/9,50/9,50/9,50/9,50/9,50/9,50/9,50/9,50],
+                    rotation: 90,
+                    text: ['8-9', '7-8', '6-7', '5-6',
+                            '4-5', '3-4', '2-3','1-2','0-1',''],
+                    textinfo: 'text',
+                    textposition:'inside',	  
+                    marker: {colors:['rgba(22,212,141, .5)', 'rgba(44,215,117, .5)',
+                                        'rgba(68,218,101, .5)', 'rgba(92,221,94, .5)',
+                                        'rgba(136,224,116, .5)', 'rgba(175,227,142, .5)',
+                                        'rgba(205,230,168, .5)','rgba(225,233,194, .5)','rgba(237, 237, 222, .5)',
+                                        'rgba(255, 255, 255, 0)']},
+                    labels: ['8-9', '7-8', '6-7', '5-6',
+                    '4-5', '3-4', '2-3','1-2','0-1',''],
+                    hoverinfo: 'label',
+                    hole: .5,
+                    type: 'pie',
+                    showlegend: false
+                    },
+                    
+                    ];
+
+        var layout = {
+                        shapes:[{
+                        type: 'path',
+                        path: gaugePointer(level),
+                        fillcolor: '850000',
+                        line: {
+                            color: '850000'
+                              }
+                         }],
+                        title: '<b>Belly Button Washing Frequency</b> <br> Scrubs per Week',
+                        autosize:true,
+                        // height: 1000,
+                        // width: 1000,
+                        xaxis: {zeroline:false, showticklabels:false,
+                                    showgrid: false, range: [-1, 1]},
+                        yaxis: {zeroline:false, showticklabels:false,
+                                showgrid: false, range: [-1, 1]}
+                    };
+
+
+        Plotly.newPlot('gauge', data, layout);
+    })
+}
+
 
 init();
